@@ -1,5 +1,5 @@
 export const state = () => ({
-  developer: null,
+  developer: [],
   result: null,
 })
 
@@ -15,6 +15,7 @@ export const mutations = {
 export const actions = {
   async load({ commit }) {
     const developers = await this.$axios.$get('/api/developer')
+    console.log(developers)
     commit('LOAD_ARTICLE', developers)
   },
 

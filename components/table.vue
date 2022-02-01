@@ -7,6 +7,8 @@
     </div>
 
     <v-data-table
+      ref="table"
+      search
       :headers="title"
       :items="data"
       sort-by="calories"
@@ -53,7 +55,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="editedItem.datanascimento"
-                        label="Idade"
+                        label="Data de Nacimento"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -125,6 +127,8 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
+
 export default {
   props: ['data', 'title', 'tableTitle', 'titleButton', 'editData'],
   data: () => ({
@@ -152,9 +156,15 @@ export default {
   }),
 
   computed: {
-    create() {
-      return this.$store.state.developers.result
-    },
+    ...mapState({
+      developer: (state) => state.developers.developer,
+      create: (state) => state.developers.result,
+    }),
+  },
+
+  mounted() {
+    this.$store.dispatch('developers/load')
+    this.load()
   },
 
   watch: {
@@ -196,8 +206,6 @@ export default {
 
     deleteItemConfirm() {
       this.$store.dispatch('developers/delete', this.editedItem._id)
-      this.$store.dispatch('developers/load')
-      this.load()
       this.closeDelete()
     },
 
@@ -220,12 +228,8 @@ export default {
     save() {
       if (this.editedIndex > -1) {
         this.$store.dispatch('developers/update', { ...this.editedItem })
-        this.$store.dispatch('developers/load')
-        this.load()
       } else {
         this.$store.dispatch('developers/create', this.editedItem)
-        this.$store.dispatch('developers/load')
-        this.load()
       }
       this.close()
     },

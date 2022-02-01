@@ -1,5 +1,5 @@
 export const state = () => ({
-  level: null,
+  level: [],
 })
 
 export const mutations = {
@@ -11,13 +11,13 @@ export const mutations = {
 export const actions = {
   async loadLevel({ commit }) {
     const levels = await this.$axios.$get('/api/level')
-
+    console.log(levels)
     commit('LOAD_ARTICLE', levels)
   },
 }
 
 export const getters = {
-  load(state) {
+  loadLevel(state) {
     return state.level
   },
 }

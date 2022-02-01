@@ -6,6 +6,7 @@
       tableTitle="Desenvolvedor(a) Cadastrados 🥳"
       titleButton="Adicionar"
       :editData="this.columEdit"
+      page="index"
       style="border-radius: 12px"
     ></Table>
   </div>
@@ -53,11 +54,8 @@ export default {
     this.load()
   },
   methods: {
-    formatDate(value) {
-      return moment(value).format('MMMM DD YYYY')
-    },
     load() {
-      this.$store.dispatch('developers/load')
+      this.$store.commit('developers/load')
     },
   },
 }
