@@ -84,5 +84,8 @@ export default {
       title: 'Dev Challenge',
     }
   },
+  mounted() {
+    this.$vuetify.theme.dark = false
+  },
 }
 </script>

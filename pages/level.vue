@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ developer }}
     <div v-if="create">
       <v-alert dense dismissible elevation="3" shaped text>{{
         create.message
@@ -10,8 +9,8 @@
     <v-data-table
       ref="table"
       search
-      :headers="title"
-      :items="developer"
+      :headers="headers"
+      :items="desserts"
       sort-by="calories"
       class="elevation tab"
     >
@@ -36,43 +35,10 @@
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
-                        v-model="editedItem.nome"
-                        label="Nome"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="editedItem.sexo"
-                        label="Sexo"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="editedItem.idade"
-                        type="number"
-                        label="Idade"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="editedItem.datanascimento"
-                        label="Data de Nacimento"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
                         v-model="editedItem.nivel"
                         label="Nivel"
+                        required
                       ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-textarea
-                        v-model="editedItem.hobby"
-                        outlined
-                        name="input-7-4"
-                        label="Outlined textarea"
-                        value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
-                      ></v-textarea>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -97,13 +63,10 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancel</v-btn
+                  >Cancelar</v-btn
                 >
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="deleteItemConfirm(item)"
-                  >OK</v-btn
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm()"
+                  >Apagar</v-btn
                 >
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -111,18 +74,13 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.datanascimento`]="{ item }">
-        <span>{{ new Date(item.datanascimento).toLocaleString('pt-br') }}</span>
-      </template>
-      <template v-slot:[`item.createdAt`]="{ item }">
-        <span>{{ new Date(item.createdAt).toLocaleString('pt-br') }}</span>
-      </template>
+
       <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
         <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
       </template>
       <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize"> Reset </v-btn>
+        <v-btn color="primary" @click="load"> Reset </v-btn>
       </template>
     </v-data-table>
   </div>
@@ -132,46 +90,34 @@ import { mapState } from 'vuex'
 
 export default {
   props: ['data', 'title', 'tableTitle', 'titleButton', 'editData'],
-  data: (props) => ({
+  data: () => ({
     dialog: false,
     dialogDelete: false,
     headers: [
-      { text: 'Nome', value: 'nome' },
       { text: 'Nivel', value: 'nivel' },
-      { text: 'Idade', value: 'idade' },
-      { text: 'Sexo', value: 'sexo' },
-      { text: 'Data de Nacimento', value: 'datanascimento' },
-      { text: 'Hobby', value: 'hobby' },
-      { text: 'Data de Criação', value: 'createdAt' },
-      { text: 'Actions', value: 'actions', sortable: false },
+      { text: 'Actions', value: 'actions', sortable: true },
     ],
-    desserts: [],
+
     editedIndex: -1,
     editedItem: {
-      nome: '',
-      sexo: '',
-      idade: '',
-      datanascimento: '',
       nivel: '',
-      hobby: '',
     },
     defaultItem: {
-      nome: '',
-      sexo: '',
-      idade: '',
-      datanascimento: '',
       nivel: '',
-      hobby: '',
     },
   }),
 
   computed: {
     ...mapState({
-      developer: (state) => state.developer,
+      developer: (state) => state.level,
       create: (state) => state.result,
     }),
+
     formTitle() {
       return this.editedIndex === -1 ? 'Novo Cadastro' : 'Edit Cadastro'
+    },
+    computedDateFormatted() {
+      return this.formatDate(this.date)
     },
   },
 
@@ -180,6 +126,10 @@ export default {
   },
 
   watch: {
+    date(val) {
+      this.dateFormatted = this.formatDate(this.date)
+    },
+
     dialog(val) {
       val || this.close()
     },
@@ -194,27 +144,28 @@ export default {
 
   methods: {
     load() {
-      this.$store.dispatch('load')
+      console.log(this.developer)
+      this.$store.dispatch('loadlevel')
+      this.desserts = this.developer
     },
 
     editItem(item) {
       console.log(item._id)
-      this.editedIndex = this.developer.indexOf(item)
+      this.editedIndex = this.desserts.indexOf(item)
       this.editedItem = Object.assign([], item)
       this.dialog = true
       this.editedIndex = 1
     },
 
     deleteItem(item) {
-      this.editedIndex = this.developer.indexOf(item)
+      this.editedIndex = this.desserts.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
 
     deleteItemConfirm() {
-      this.$store.dispatch('delete', this.editedItem._id)
-
-      this.$forceUpdate()
+      this.$store.dispatch('deletelevel', this.editedItem)
+      this.desserts.splice(this.editedIndex, 1)
       this.closeDelete()
     },
 
@@ -232,19 +183,18 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
+      this.load()
     },
 
     save() {
       if (this.editedIndex > -1) {
-        this.$store.dispatch('update', { ...this.editedItem })
-        this.$store.dispatch('load', this.editedItem)
-        this.$forceUpdate()
+        this.$store.dispatch('updatelevel', this.editedItem)
+        this.desserts.push(this.editedItem)
       } else {
-        this.$store.dispatch('create', this.editedItem)
-        this.$store.dispatch('load', this.defaultItem)
-        this.$forceUpdate()
-        // this.data.push(this.editedItem)
+        this.$store.dispatch('createlevel', this.editedItem)
+        this.$state.level.push(this.editedItem)
       }
+      this.load()
       this.close()
     },
   },
