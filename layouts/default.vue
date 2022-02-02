@@ -73,9 +73,9 @@ export default {
           to: '/',
         },
         {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire',
+          icon: 'mdi-chart-timeline',
+          title: 'Level',
+          to: '/level',
         },
       ],
       miniVariant: true,
